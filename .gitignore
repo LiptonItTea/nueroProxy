@@ -1,0 +1,11 @@
+.idea
+./.idea
+
+bot_token.csv
+./bot_token.csv
+
+mistral_token.csv
+./mistral_token.csv
+
+test.py
+./test.py
