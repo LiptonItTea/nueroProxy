@@ -14,6 +14,8 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -24,6 +26,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    logger.info("User %s asked: %s", update.effective_user.name, update.effective_message.text)
     user_id = str(update.effective_user.id)
     # checking if already generating something
     user_is_generating = await redis_client.get(user_id)
@@ -92,7 +95,7 @@ if __name__ == "__main__":
     mistral_token = open("mistral_token.csv", "r").readline()
     llm_client = Mistral(mistral_token)
 
-    redis_client = redis.Redis(host="localhost", port=8001, db=0, decode_responses=True)
+    redis_client = redis.Redis(host="redis", port=6379, db=0, decode_responses=True)
     redis_client.flushall(asynchronous=True)
 
     handlers = list()
