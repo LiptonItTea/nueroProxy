@@ -1,6 +1,6 @@
 import asyncio
 
-from telegram import Update
+from telegram import Update, Message
 from telegram.ext import ContextTypes, ApplicationBuilder, filters, CommandHandler, MessageHandler
 import logging
 from mistralai import Mistral
@@ -25,12 +25,31 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-def log_info(text):
+def log_info(text: str) -> None:
     text = re.sub("\s+", " ", text)
     text = re.sub("\t+", "", text)
     text = re.sub("\n", "", text)
 
     logger.info(text)
+
+
+async def send_message(context: ContextTypes.DEFAULT_TYPE, effective_chat_id: int, text: str, parse_mode: str = "MarkdownV2"):
+    if parse_mode == "MarkdownV2":
+        text = re.sub(r'[_*[\]()~>#\+\-=|{}.!]', lambda x: '\\' + x.group(), text)
+    return await context.bot.send_message(
+        chat_id=effective_chat_id,
+        text=text,
+        parse_mode=parse_mode
+    )
+
+
+async def edit_message(message: Message, text: str, parse_mode: str = "MarkdownV2"):
+    if parse_mode == "MarkdownV2":
+        text = re.sub(r'[_*[\]()~>#\+\-=|{}.!]', lambda x: '\\' + x.group(), text)
+    return await message.edit_text(
+        text=text,
+        parse_mode=parse_mode
+    )
 
 
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -59,7 +78,7 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
     )
 
-    current_message = await context.bot.send_message(chat_id=update.effective_chat.id, text="Processing the message")
+    current_message = await send_message(context, update.effective_chat.id, "Processing the message.", parse_mode=None)
     edited = False
     time_limit = 1
     last_sent = None
@@ -79,14 +98,14 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if last_sent is None or time.time() - last_sent > time_limit:
             if not edited:
-                current_message = await current_message.edit_text(batch)
+                current_message = await edit_message(current_message, batch, parse_mode=None)
                 edited = True
             else:
-                current_message = await current_message.edit_text(current_message.text + batch)
+                current_message = await edit_message(current_message, current_message.text + batch, parse_mode=None)
             batch = ''
             last_sent = time.time()
-    if len(batch) > 0:
-        await current_message.edit_text(current_message.text + batch)
+    # add what else we have and switch to markdown
+    await edit_message(current_message, current_message.text + batch + cumulative)
 
     await redis_client.delete(user_id)
 
