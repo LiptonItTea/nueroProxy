@@ -65,8 +65,8 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     # therefore start generating
-    print("setting user")
-    await redis_client.set(user_id, "generating")
+    # print("setting user")
+    # await redis_client.set(user_id, "generating")
 
     response = await llm_client.chat.stream_async(
         model=model,
@@ -107,7 +107,7 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # add what else we have and switch to markdown
     await edit_message(current_message, current_message.text + batch + cumulative)
 
-    await redis_client.delete(user_id)
+    # await redis_client.delete(user_id)
 
 
 llm_client = None
