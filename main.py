@@ -25,8 +25,16 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+def log_info(text):
+    text = re.sub("\s+", " ", text)
+    text = re.sub("\t+", "", text)
+    text = re.sub("\n", "", text)
+
+    logger.info(text)
+
+
 async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    logger.info("User %s asked: %s", update.effective_user.name, update.effective_message.text)
+    log_info(f"User {update.effective_user.id} asked: {update.effective_message.text}")
     user_id = str(update.effective_user.id)
     # checking if already generating something
     user_is_generating = await redis_client.get(user_id)

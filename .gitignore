@@ -9,3 +9,6 @@ mistral_token.csv
 
 test.py
 ./test.py
+
+deep_seek_token.csv
+./deep_seek_token.csv
