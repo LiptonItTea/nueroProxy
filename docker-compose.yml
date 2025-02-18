@@ -3,6 +3,8 @@ services:
     build: .
     entrypoint: ["python", "main.py"]
     container_name: nuero_proxy
+    depends_on:
+      - redis
 
   redis:
     image: redis:latest
