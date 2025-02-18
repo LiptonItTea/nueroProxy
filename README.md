@@ -1,5 +1,6 @@
 # Nuero Proxy
 ![](https://raw.githubusercontent.com/LiptonItTea/nueroProxy/refs/heads/main/preview.gif)
+
 Simple teleram bot that streams data chunks from LLM to chat.
 
 Using `redis` mini-database that stores ids of users that generate something (this is useless for this moment).
